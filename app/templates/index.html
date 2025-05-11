@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>999Security Diagnostics - Cyberpunk Lab</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="glitch-title" data-text="999Security Diagnostics">999Security Diagnostics</div>
+    <div class="form-container">
+        <form id="attack-form" action="/scan" method="POST">
+            <label for="scan_type">Select Attack Type:</label>
+            <select name="scan_type" id="scan_type" required>
+                <option value="vuln_scan">Vulnerability Scanner</option>
+                <option value="sqli">SQL Injection Simulator</option>
+                <option value="ssh_brute">SSH Brute-Force Simulator</option>
+                <option value="xss">XSS Simulator</option>
+                <option value="attack_chain">Chained Attack Mode</option>
+                <option value="community">Community Payloads</option>
+            </select>
+            <div id="target-fields">
+                <label for="target">Target (URL or IP):</label>
+                <input type="text" id="target" name="target" placeholder="e.g. testphp.vulnweb.com" required>
+            </div>
+            <div id="ssh-fields" class="hidden">
+                <label for="ssh_user">SSH Username:</label>
+                <input type="text" id="ssh_user" name="ssh_user">
+                <label for="ssh_pass">SSH Password:</label>
+                <input type="password" id="ssh_pass" name="ssh_pass">
+            </div>
+            <div id="payload-fields" class="hidden">
+                <label for="custom_payload">Custom Payload:</label>
+                <textarea id="custom_payload" name="custom_payload" rows="2" placeholder="Enter your SQLi or XSS payload..."></textarea>
+            </div>
+            <button type="submit" class="glow-btn">Launch Attack</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
+    <script>
+        // Dynamic form logic
+        const scanType = document.getElementById('scan_type');
+        const sshFields = document.getElementById('ssh-fields');
+        const payloadFields = document.getElementById('payload-fields');
+        scanType.addEventListener('change', function() {
+            sshFields.classList.toggle('hidden', this.value !== 'ssh_brute');
+            payloadFields.classList.toggle('hidden', this.value !== 'community');
+        });
+    </script>
+</body>
+</html>

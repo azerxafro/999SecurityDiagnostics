@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - 999Security Diagnostics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="glitch-title" data-text="Results">Results</div>
+    <div class="results-container">
+        <h2>Scan Type: <span class="glow">{{ scan_type|capitalize }}</span></h2>
+        <h3>Target: <span class="glow">{{ target }}</span></h3>
+        <div class="results-output">
+            {% if results %}
+                <pre>{{ results }}</pre>
+            {% else %}
+                <p>No results to display.</p>
+            {% endif %}
+        </div>
+        <a href="/" class="glow-btn">Back to Home</a>
+    </div>
+    <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
+</body>
+</html>
