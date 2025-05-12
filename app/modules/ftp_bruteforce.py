@@ -42,9 +42,43 @@ class FTPBruteForceSimulator:
             ftp.connect(target, port, timeout=5)
             ftp.login(username, password)
             
+            # Check for anonymous access
+            is_anonymous = username.lower() in ['anonymous', 'ftp'] and (not password or password == 'anonymous')
+            
+            # Get welcome message and system info
+            welcome_msg = ftp.getwelcome()
+            system_info = ""
+            try:
+                system_info = ftp.sendcmd("SYST")
+            except:
+                pass
+                
+            # Try to get directory listing
+            dir_access = False
+            try:
+                ftp.dir()
+                dir_access = True
+            except:
+                pass
+                
+            # Build result message
+            msg_parts = [
+                f"[+] Successful login - {username}:{password}",
+                f"[i] Welcome message: {welcome_msg}",
+            ]
+            
+            if system_info:
+                msg_parts.append(f"[i] System info: {system_info}")
+            
+            if is_anonymous:
+                msg_parts.append("[!] WARNING: Anonymous access enabled!")
+                
+            if dir_access:
+                msg_parts.append("[i] Directory listing access confirmed")
+                
             # If login succeeds, properly close the connection
             ftp.quit()
-            return True, f"[+] Successful login - {username}:{password}"
+            return True, "\n".join(msg_parts)
             
         except ftplib.error_perm as e:
             return False, f"[-] Failed login attempt - {username}:{password} - Permission denied"

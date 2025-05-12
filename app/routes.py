@@ -38,7 +38,22 @@ def scan():
                 results = scanner.simulate_bruteforce(target, ssh_user, custom_pass_list)
         elif scan_type == "ftp_brute":
             scanner = FTPBruteForceSimulator()
-            results = scanner.simulate_bruteforce(target)
+            ftp_user = request.form.get("ftp_user")
+            ftp_pass = request.form.get("ftp_pass")
+            ftp_port = request.form.get("ftp_port", "21")
+            
+            try:
+                port = int(ftp_port)
+            except ValueError:
+                port = 21
+                
+            if ftp_user and ftp_pass:
+                # Test specific credentials
+                success, message = scanner.test_credentials(target, ftp_user, ftp_pass, port)
+                results = f"FTP Security Test - {target}:{port}\n" + "=" * 50 + "\n" + message
+            else:
+                # Run default bruteforce simulation
+                results = scanner.simulate_bruteforce(target, port=port)
         elif scan_type == "xss":
             scanner = XSSSimulator()
             results = scanner.test_xss(target)

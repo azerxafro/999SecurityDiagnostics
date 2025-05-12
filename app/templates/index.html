@@ -31,6 +31,14 @@
                 <label for="ssh_pass">SSH Password:</label>
                 <input type="password" id="ssh_pass" name="ssh_pass">
             </div>
+            <div id="ftp-fields" class="hidden">
+                <label for="ftp_user">FTP Username:</label>
+                <input type="text" id="ftp_user" name="ftp_user" placeholder="anonymous">
+                <label for="ftp_pass">FTP Password:</label>
+                <input type="password" id="ftp_pass" name="ftp_pass" placeholder="anonymous">
+                <label for="ftp_port">FTP Port:</label>
+                <input type="number" id="ftp_port" name="ftp_port" value="21">
+            </div>
             <div id="payload-fields" class="hidden">
                 <label for="custom_payload">Custom Payload:</label>
                 <textarea id="custom_payload" name="custom_payload" rows="2" placeholder="Enter your SQLi or XSS payload..."></textarea>
@@ -48,9 +56,11 @@
         // Dynamic form logic
         const scanType = document.getElementById('scan_type');
         const sshFields = document.getElementById('ssh-fields');
+        const ftpFields = document.getElementById('ftp-fields');
         const payloadFields = document.getElementById('payload-fields');
         scanType.addEventListener('change', function() {
             sshFields.classList.toggle('hidden', this.value !== 'ssh_brute');
+            ftpFields.classList.toggle('hidden', this.value !== 'ftp_brute');
             payloadFields.classList.toggle('hidden', this.value !== 'community');
         });
 
