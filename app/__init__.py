@@ -1,6 +1,9 @@
 from flask import Flask
 from flask.logging import create_logger
+from flask_socketio import SocketIO
 import logging
+
+socketio = SocketIO()
 
 def create_app():
     """Create and configure the Flask application."""
@@ -9,6 +12,9 @@ def create_app():
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     app.logger = create_logger(app)
+    
+    # Initialize SocketIO with the app
+    socketio.init_app(app)
     
     # Register blueprints
     from app.routes import main_bp
