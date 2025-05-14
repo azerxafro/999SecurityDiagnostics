@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 from app.modules.vulnerability_scanner import VulnerabilityScanner
 from app.modules.sqli_simulator import SQLiSimulator
 from app.modules.ssh_bruteforce import SSHBruteForceSimulator
+from app.modules.ftp_bruteforce import FTPBruteForceSimulator
 from app.modules.xss_simulator import XSSSimulator
 from app.modules.attack_chain import ChainedAttackSimulator
 
@@ -35,6 +36,24 @@ def scan():
                 scanner = SSHBruteForceSimulator()
                 custom_pass_list = [ssh_pass] if ssh_pass else None
                 results = scanner.simulate_bruteforce(target, ssh_user, custom_pass_list)
+        elif scan_type == "ftp_brute":
+            scanner = FTPBruteForceSimulator()
+            ftp_user = request.form.get("ftp_user")
+            ftp_pass = request.form.get("ftp_pass")
+            ftp_port = request.form.get("ftp_port", "21")
+            
+            try:
+                port = int(ftp_port)
+            except ValueError:
+                port = 21
+                
+            if ftp_user and ftp_pass:
+                # Test specific credentials
+                success, message = scanner.test_credentials(target, ftp_user, ftp_pass, port)
+                results = f"FTP Security Test - {target}:{port}\n" + "=" * 50 + "\n" + message
+            else:
+                # Run default bruteforce simulation
+                results = scanner.simulate_bruteforce(target, port=port)
         elif scan_type == "xss":
             scanner = XSSSimulator()
             results = scanner.test_xss(target)

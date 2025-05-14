@@ -16,6 +16,7 @@
                 <option value="vuln_scan">Vulnerability Scanner</option>
                 <option value="sqli">SQL Injection Simulator</option>
                 <option value="ssh_brute">SSH Brute-Force Simulator</option>
+                <option value="ftp_brute">FTP Brute-Force Simulator</option>
                 <option value="xss">XSS Simulator</option>
                 <option value="attack_chain">Chained Attack Mode</option>
                 <option value="community">Community Payloads</option>
@@ -30,6 +31,14 @@
                 <label for="ssh_pass">SSH Password:</label>
                 <input type="password" id="ssh_pass" name="ssh_pass">
             </div>
+            <div id="ftp-fields" class="hidden">
+                <label for="ftp_user">FTP Username:</label>
+                <input type="text" id="ftp_user" name="ftp_user" placeholder="anonymous">
+                <label for="ftp_pass">FTP Password:</label>
+                <input type="password" id="ftp_pass" name="ftp_pass" placeholder="anonymous">
+                <label for="ftp_port">FTP Port:</label>
+                <input type="number" id="ftp_port" name="ftp_port" value="21">
+            </div>
             <div id="payload-fields" class="hidden">
                 <label for="custom_payload">Custom Payload:</label>
                 <textarea id="custom_payload" name="custom_payload" rows="2" placeholder="Enter your SQLi or XSS payload..."></textarea>
@@ -37,16 +46,36 @@
             <button type="submit" class="glow-btn">Launch Attack</button>
         </form>
     </div>
+    <!-- Real-time Console Tab (hidden on home, shown after scan starts) -->
+    <div id="console-tab" class="console-tab" style="display:none;">
+        <div class="console-header">Real-Time Console</div>
+        <pre id="console-log" class="console-log"></pre>
+    </div>
     <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
     <script>
         // Dynamic form logic
         const scanType = document.getElementById('scan_type');
         const sshFields = document.getElementById('ssh-fields');
+        const ftpFields = document.getElementById('ftp-fields');
         const payloadFields = document.getElementById('payload-fields');
         scanType.addEventListener('change', function() {
             sshFields.classList.toggle('hidden', this.value !== 'ssh_brute');
+            ftpFields.classList.toggle('hidden', this.value !== 'ftp_brute');
             payloadFields.classList.toggle('hidden', this.value !== 'community');
         });
+
+        // Real-time log simulation (for demo, show console on submit)
+        document.getElementById('attack-form').addEventListener('submit', function() {
+            document.getElementById('console-tab').style.display = '';
+            appendToConsole('Initializing scan...');
+        });
+        function appendToConsole(msg) {
+            const log = document.getElementById('console-log');
+            if (log) {
+                log.textContent += msg + '\n';
+                log.scrollTop = log.scrollHeight;
+            }
+        }
     </script>
 </body>
 </html>

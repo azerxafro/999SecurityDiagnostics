@@ -2,6 +2,8 @@ import paramiko
 import socket
 import logging
 from typing import List, Tuple
+from app import socketio
+import time
 
 class SSHBruteForceSimulator:
     def __init__(self):
@@ -12,12 +14,20 @@ class SSHBruteForceSimulator:
             "root", "qwerty", "letmein"
         ]
         
+    def emit_log(self, message):
+        """Emit log message to connected clients"""
+        try:
+            socketio.emit('log_message', {'message': message})
+        except Exception as e:
+            self.logger.error(f"Error emitting log: {str(e)}")
+        
     def test_ssh_auth(self, hostname: str, username: str, password: str) -> Tuple[bool, str]:
         """Test a single SSH authentication attempt"""
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         try:
+            self.emit_log(f"Attempting login with username: {username}")
             client.connect(
                 hostname=hostname,
                 username=username,
@@ -36,6 +46,8 @@ class SSHBruteForceSimulator:
             
     def simulate_bruteforce(self, target: str, username: str, custom_passwords: List[str] = None) -> str:
         """Simulate SSH brute force attempts for educational purposes"""
+        self.emit_log(f"Starting SSH security test on {target}")
+        
         results = [
             f"SSH Security Test for {target}",
             "=" * 50,
@@ -53,18 +65,33 @@ class SSHBruteForceSimulator:
         
         try:
             for password in passwords[:5]:  # Limit attempts for demonstration
+                self.emit_log(f"Testing password: {password}")
                 success, message = self.test_ssh_auth(target, username, password)
-                results.append(f"Testing password: {password}")
-                results.append(f"Result: {message}")
+                
+                results.extend([
+                    f"Testing password: {password}",
+                    f"Result: {message}"
+                ])
                 
                 if success:
-                    results.append("\n! Warning: Weak password detected!")
-                    results.append("Recommendation: Change password immediately")
+                    msg = "\n! Warning: Weak password detected!"
+                    self.emit_log(msg)
+                    results.extend([
+                        msg,
+                        "Recommendation: Change password immediately"
+                    ])
                     break
+                
+                # Add delay between attempts
+                time.sleep(1)
                     
+            self.emit_log("SSH testing completed")
+            socketio.emit('scan_complete', {'message': 'SSH Security testing completed'})
             results.append("\nReminder: Only test on authorized systems!")
             return "\n".join(results)
             
         except Exception as e:
             self.logger.error(f"SSH testing error: {str(e)}")
-            return f"Error during SSH testing: {str(e)}"
+            error_msg = f"Error during SSH testing: {str(e)}"
+            self.emit_log(error_msg)
+            return error_msg

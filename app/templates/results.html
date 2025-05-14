@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Results - 999Security Diagnostics</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
     <canvas id="matrix-canvas"></canvas>
@@ -21,6 +22,41 @@
         </div>
         <a href="/" class="glow-btn">Back to Home</a>
     </div>
+    <!-- Real-time Console Tab -->
+    <div id="console-tab" class="console-tab">
+        <div class="console-header">Real-Time Console</div>
+        <pre id="console-log" class="console-log"></pre>
+    </div>
     <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
+    <script>
+        // WebSocket connection
+        const socket = io();
+        
+        function appendToConsole(msg) {
+            const log = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${msg}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Listen for log messages from the server
+        socket.on('log_message', function(data) {
+            appendToConsole(data.message);
+        });
+        
+        // Listen for scan completion
+        socket.on('scan_complete', function(data) {
+            appendToConsole('Scan completed: ' + data.message);
+        });
+        
+        // Handle connection status
+        socket.on('connect', () => {
+            appendToConsole('Connected to real-time console');
+        });
+        
+        socket.on('disconnect', () => {
+            appendToConsole('Disconnected from real-time console');
+        });
+    </script>
 </body>
 </html>
